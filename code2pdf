@@ -35,5 +35,8 @@ def main(args):
     output.close()
     return
 
+# TODO(#1): add option to exclude files/folders
+# TODO: convert markdown to pdf
+# TODO: add summary option
 if __name__ == "__main__":
     main(sys.argv[1:])
