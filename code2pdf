@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+import sys
+from os.path import isdir, join
+from os import walk
+
+def get_extension(filename):
+    if len(filename.split('.')) <= 1:
+        return ''
+    return filename.split('.')[-1]
+
+def main(args):
+    if len(args) == 0:
+        print("ERROR: directory not provided")
+        return
+
+    if not isdir(args[0]):
+        print("ERROR: first argument is not directory")
+        return
+
+    directory = args[0]
+    files = [join(root, name)
+            for root, dirs, files in walk(directory)
+            for name in files]
+
+    output = open("out.md", "w")
+
+    for idx, code in enumerate(files, 1):
+        print(f"LOG: writing file {code} to markdown [{idx}/{len(files)}]")
+        output.write(f"# {code}\n```{get_extension(code)}\n")
+        with open(code) as src:
+            for line in src:
+                output.write(line)
+        output.write(f"\n```\n\n")
+
+    output.close()
+    return
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
