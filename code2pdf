@@ -105,7 +105,6 @@ def main(args):
     return
 
 
-# TODO(#2): convert markdown to pdf
 # TODO: create installer script
 # TODO: fix line breaking on code blocks
 if __name__ == "__main__":
