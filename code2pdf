@@ -8,6 +8,27 @@ def get_extension(filename):
         return ''
     return filename.split('.')[-1]
 
+def is_path_in_path(root, path):
+    find_pos = root.find(path)
+
+    print(find_pos, root, path);
+    if find_pos == -1 or len(root) < len(path):
+        return False
+
+    if find_pos == 0 and len(path) == len(root):
+        return True
+
+    if find_pos == 0 and root[len(path)] == '/':
+        return True
+
+    if root[find_pos - 1] == '/' and len(root) == find_pos + len(path):
+        return True
+
+    if (root[find_pos - 1] == '/' and len(root) > find_pos + len(path) 
+            and root[find_pos + len(path)] == '/'):
+        return True
+    return False
+
 def main(args):
     if len(args) == 0:
         print("ERROR: directory not provided")
@@ -17,10 +38,26 @@ def main(args):
         print("ERROR: first argument is not directory")
         return
 
+    i = 0
+    exclude_string = ''
+    while i < len(args):
+        if args[i] == '-e':
+            i += 1
+            exclude_string = args[i]
+
+        i += 1
+
+    exclude_paths = exclude_string.split(',')
+    print(exclude_paths)
+
     directory = args[0]
     files = [join(root, name)
             for root, dirs, files in walk(directory)
-            for name in files]
+            for name in files
+            if name not in exclude_paths and 
+            not any([is_path_in_path(root, path)
+                for path in exclude_paths])]
+    print(files)
 
     output = open("out.md", "w")
 
