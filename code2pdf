@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 import sys
 from os.path import isdir, join
-from os import walk
+from os import walk, remove
+
+import pypandoc
+from pypandoc.pandoc_download import download_pandoc
+
 
 def get_extension(filename):
     if len(filename.split('.')) <= 1:
         return ''
     return filename.split('.')[-1]
 
+
 def is_path_in_path(root, path):
     find_pos = root.find(path)
 
-    print(find_pos, root, path);
     if find_pos == -1 or len(root) < len(path):
         return False
 
@@ -24,10 +28,12 @@ def is_path_in_path(root, path):
     if root[find_pos - 1] == '/' and len(root) == find_pos + len(path):
         return True
 
-    if (root[find_pos - 1] == '/' and len(root) > find_pos + len(path) 
+    if (root[find_pos - 1] == '/' and len(root) > find_pos + len(path)
             and root[find_pos + len(path)] == '/'):
         return True
+
     return False
+
 
 def main(args):
     if len(args) == 0:
@@ -38,26 +44,37 @@ def main(args):
         print("ERROR: first argument is not directory")
         return
 
+    # params
+    exclude_paths = []
+    summary = False
+
     i = 0
     exclude_string = ''
     while i < len(args):
         if args[i] == '-e':
-            i += 1
-            exclude_string = args[i]
+            if i + 1 < len(args):
+                i += 1
+                exclude_string = args[i]
+            else:
+                print("ERROR: excluded files/directories not provided after -e flag")
+                return
+
+        if args[i] == '-s':
+            summary = True
 
         i += 1
 
     exclude_paths = exclude_string.split(',')
-    print(exclude_paths)
 
     directory = args[0]
     files = [join(root, name)
-            for root, dirs, files in walk(directory)
-            for name in files
-            if name not in exclude_paths and 
-            not any([is_path_in_path(root, path)
-                for path in exclude_paths])]
-    print(files)
+             for root, dirs, files in walk(directory)
+             for name in files
+             if name not in exclude_paths and
+             not any([is_path_in_path(root, path)
+                      for path in exclude_paths])]
+
+    files = [f for f in files if f not in exclude_paths]
 
     output = open("out.md", "w")
 
@@ -70,9 +87,27 @@ def main(args):
         output.write(f"\n```\n\n")
 
     output.close()
+
+    pandoc_args = [
+        '--highlight-style=tango',
+        '-V', 'geometry:margin=2cm',
+        '--standalone'
+    ]
+
+    if summary:
+        pandoc_args.append('--toc')
+
+    print("LOG: converting markdown to pdf...")
+    result = pypandoc.convert_file('out.md', 'pdf', outputfile='code.pdf',
+                                   extra_args=pandoc_args)
+
+    remove('out.md')
     return
+
 
 # TODO(#2): convert markdown to pdf
 # TODO(#3): add summary option
+# TODO: create installer script
+# TODO: fix line breaking on code blocks
 if __name__ == "__main__":
     main(sys.argv[1:])
