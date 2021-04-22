@@ -150,7 +150,6 @@ def main(args):
     return
 
 
-# TODO(#4): create installer script
 # TODO(#5): fix line breaking on code blocks
 if __name__ == "__main__":
     main(sys.argv[1:])
