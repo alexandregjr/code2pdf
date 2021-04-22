@@ -35,32 +35,65 @@ def is_path_in_path(root, path):
     return False
 
 
+def usage():
+    print("USAGE: code2pdf <directory> [options]")
+    print("OPTIONS:")
+    print("\t-r [dir,file]: To remove dirs and files from generation.")
+    print("\t\tDirs and files should be comma separated as in: dir1,dir2/file2,...")
+    print("\t-s: To add table of contents in the beggining of the document.")
+    print("\t-o [filename]: To set output filename.")
+
+
 def main(args):
     if len(args) == 0:
         print("ERROR: directory not provided")
+        usage()
         return
 
     if not isdir(args[0]):
         print("ERROR: first argument is not directory")
+        usage()
         return
 
     # params
     exclude_paths = []
     summary = False
+    output_file = ''
 
     i = 0
     exclude_string = ''
     while i < len(args):
-        if args[i] == '-e':
+        if args[i] == '-r':
             if i + 1 < len(args):
-                i += 1
-                exclude_string = args[i]
+                if args[i + 1][0] == '-':
+                    print(
+                        "ERROR: excluded files/directories not provided after -e flag")
+                    usage()
+                    return
+                else:
+                    i += 1
+                    exclude_string = args[i]
             else:
                 print("ERROR: excluded files/directories not provided after -e flag")
+                usage()
                 return
 
         if args[i] == '-s':
             summary = True
+
+        if args[i] == '-o':
+            if i + 1 < len(args):
+                if args[i + 1][0] == '-':
+                    print("ERROR: output filename not provided after -o flag")
+                    usage()
+                    return
+                else:
+                    i += 1
+                    output_file = args[i]
+            else:
+                print("ERROR: output filename not provided after -o flag")
+                usage()
+                return
 
         i += 1
 
@@ -98,7 +131,15 @@ def main(args):
         pandoc_args.append('--toc')
 
     print("LOG: converting markdown to pdf...")
-    result = pypandoc.convert_file('out.md', 'pdf', outputfile='code.pdf',
+
+    if output_file == '':
+        output_file = 'output.pdf'
+    
+    if output_file[-4:] == '.pdf':
+        output_file = output_file[:-4]
+
+    result = pypandoc.convert_file('out.md', 'pdf',
+                                   outputfile=f'{output_file}.pdf',
                                    extra_args=pandoc_args)
 
     remove('out.md')
