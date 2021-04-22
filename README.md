@@ -3,8 +3,18 @@
 **This repo is a WIP.** For now, it converts all files from a directory to a
 markdown file.
 
-## Usage
+## Installation
+
+**Debian/Ubuntu**
+Just run `installer.sh` script to install all dependencies and move script file
+to bin folder.
 
 ```
-$ ./code2pdf <directory>
+$ ./installer.sh
+```
+
+## Usage
+Help show how to use program and all options.
+```
+$ code2pdf --help
 ```
