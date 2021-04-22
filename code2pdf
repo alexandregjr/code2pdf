@@ -49,6 +49,10 @@ def main(args):
         print("ERROR: directory not provided")
         usage()
         return
+    
+    if args[0] == '--help' or args[0] == '-h':
+        usage()
+        return
 
     if not isdir(args[0]):
         print("ERROR: first argument is not directory")
