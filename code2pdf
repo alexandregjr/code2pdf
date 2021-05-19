@@ -49,7 +49,7 @@ def main(args):
         print("ERROR: directory not provided")
         usage()
         return
-    
+
     if args[0] == '--help' or args[0] == '-h':
         usage()
         return
@@ -114,10 +114,12 @@ def main(args):
     files = [f for f in files if f not in exclude_paths]
 
     output = open("out.md", "w")
+    output.write("---\nheader-includes: |\n\t\\usepackage{xcolor}\n\t\\lstset{\n\t\tbasicstyle=\\ttfamily,\n\t\tnumbers=left,\n\t\tkeywordstyle=\\color[rgb]{0.13,0.29,0.53}\\bfseries,\n\t\tstringstyle=\\color[rgb]{0.31,0.60,0.02},\n\t\tcommentstyle=\\color[rgb]{0.56,0.35,0.01}\\itshape,\n\t\tnumberstyle=\\footnotesize,\n\t\tstepnumber=1,\n\t\tnumbersep=5pt,\n\t\tbackgroundcolor=\\color[RGB]{248,248,248},\n\t\tshowspaces=false,\n\t\tshowstringspaces=false,\n\t\tshowtabs=false,\n\t\ttabsize=2,\n\t\tcaptionpos=b,\n\t\tbreaklines=true,\n\t\tescapeinside={\\%*}{*)},\n\t\tlinewidth=\\textwidth,\n\t\tbasewidth=0.5em,\n\t}\n---\n\n")
 
+    #\n\t\tbreakatwhitespace=true,
     for idx, code in enumerate(files, 1):
         print(f"LOG: writing file {code} to markdown [{idx}/{len(files)}]")
-        output.write(f"# {code}\n```{get_extension(code)}\n")
+        output.write(f"# {code}\n```{get_extension(code)} \n")
         with open(code) as src:
             for line in src:
                 output.write(line)
@@ -128,7 +130,9 @@ def main(args):
     pandoc_args = [
         '--highlight-style=tango',
         '-V', 'geometry:margin=2cm',
-        '--standalone'
+        '--standalone',
+        '--pdf-engine=xelatex',
+        '--listings'
     ]
 
     if summary:
@@ -138,7 +142,7 @@ def main(args):
 
     if output_file == '':
         output_file = 'output.pdf'
-    
+
     if output_file[-4:] == '.pdf':
         output_file = output_file[:-4]
 
