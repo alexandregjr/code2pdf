@@ -8,6 +8,7 @@ sudo apt install python3 python3-pip -y
 echo "Installing dependecies..."
 sudo apt install pandoc -y
 sudo apt install texlive-latex-extra -y
+sudo apt install texlive-xetex -y
 pip3 install pypandoc
 
 echo "Installing code2pdf..."
